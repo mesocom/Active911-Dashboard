@@ -24,17 +24,15 @@ body {
 }
 
 
-.left {
+.left, .right {
   
   width: 50vw;
   height: 100vh;
   
-  background-image: url("./department_logo.png");
   background-position: center;
   background-repeat: no-repeat;
   background-size: contain;
   background-blend-mode: multiply;
-  background-color: rgba(20, 20, 20, 0.95);
   
   position: absolute;
   
@@ -46,12 +44,11 @@ body {
 
 .right {
   
-  width: 50vw;
-  height: 100vh;
-  
   margin-left: 50vw;
-  position: absolute;
   
+  background-image: url("./department_logo.png");
+  background-color: rgba(20, 20, 20, 0.0);
+
 }
 
 
@@ -68,6 +65,9 @@ body {
   margin-top: 10vh;
 }
 
+#message_div {
+  margin-top: 30vh;
+}
 
 .left span {
   font-size: 36pt;

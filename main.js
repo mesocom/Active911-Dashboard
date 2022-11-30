@@ -1,13 +1,14 @@
 
+var stationLocation = "Example+Address";
+var googleKey = "api_key";
+var centerLat = "12.345678";
+var centerLon = "-123.45678";
+var centerZoomLevel = "13";
+var lastAlarmID = ""
+var lastAlarmClearDelay = 45;
 
-var stationLocation = "Test+Location";
-var googleKey = "";
-var centerLat = "";
-var centerLon = "";
-var centerZoomLevel = "";
-var lastAlarmID = "";
 
-
+// Update these to meet your CAD event types
 function alarmColor (d) {
   
   if (d.includes("F/")) {
@@ -35,7 +36,7 @@ function alarmColor (d) {
     || d.includes("UNKMED") || d.includes("BACKPX") || d.includes("TRAUMA")
     || d.includes("STROKE") || d.includes("FULARST") || d.includes("ANMBITE")
     || d.includes("HEADACHE") || d.includes("SHOOT/I") || d.includes("PUBLIC-ASSIST")
-    || d.includes("Full Arrest")) {
+    || d.includes("Full Arrest") || d.includes("CUTTING") || d.includes("CUT/I")) {
     return "deepskyblue";
   }
   
@@ -50,7 +51,7 @@ function updateClock() {
   
   var d = new Date($.now());
   
-  var dateString = d.getFullYear() + "-" + d.getMonth() + "-" + d.getDate()
+  var dateString = d.getFullYear() + "-" + (d.getMonth()+1) + "-" + d.getDate()
     + " " + ("0" + d.getHours()).substr(-2) + ":"
     + ("0" + d.getMinutes()).substr(-2) + ":" + ("0" + d.getSeconds()).substr(-2);
   
@@ -68,18 +69,35 @@ function updateAlarm() {
   var alarms = active_data["alarms"];
   
   var i = 0;
-  
-  // Do nothing if the alarm has not changed
+
+  // Clear call after set delay
+  if (
+    (alarms[i]["pretty_date"].split(" ")[1] != "min" && alarms[i]["pretty_date"] != "now")
+    || (alarms[i]["pretty_date"].split(" ")[1] == "min"
+    &&   parseFloat(alarms[i]["pretty_date"].split(" ")[0]) > lastAlarmClearDelay)
+	) {
+    $("#alarm_text_div").hide();
+    $("#message_div").show();
+    $("#alarm_map").hide();
+  }
+
+  // Update alarm time and exit if the alarm has not changed
   if (alarms[i]["id"] == lastAlarmID) {
+    $("#last_alarm_time").text("Last alarm: " + alarms[i]["pretty_date"])
     return false;
   } else {
     lastAlarmID = alarms[i]["id"];
   }
-  
+
+  // Show alarm text for new alarm
+  $("#alarm_text_div").show();
+  $("#message_div").hide();
+  $("#alarm_map").show();
+
   // Set alarm timestamp
   var d = new Date(0);
   d.setUTCSeconds(alarms[i]["stamp"])
-  var dateString = d.getFullYear() + "-" + d.getMonth() + "-" + d.getDate()
+  var dateString = d.getFullYear() + "-" + (d.getMonth()+1) + "-" + d.getDate()
     + " " + ("0" + d.getHours()).substr(-2) + ":"
     + ("0" + d.getMinutes()).substr(-2) + ":" + ("0" + d.getSeconds()).substr(-2);
   $("#alarm_time").text(dateString);
@@ -112,6 +130,6 @@ $(document).ready(function() {
   setInterval(updateClock, 1000);
   
   updateAlarm();
-  setInterval(updateAlarm, 10000);
+  setInterval(updateAlarm, 1000);
   
 });
